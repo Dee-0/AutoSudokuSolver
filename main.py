@@ -3,8 +3,8 @@ Need to implement:
 13.12.21
 [√]Screen
 [√]Grid
-[√]Input * NEED TO SAVE DATA TO SHOW ON SCREEN
-[]Algorithm
+[√]Input * NEED TO SAVE DATA TO SHOW ON SCREEN [√]
+[]Algorithm * Working on it NOW
 []Visualized
 """
 
@@ -24,6 +24,8 @@ BLACK = (0,0,0)
 GREEN = (0,255,0)
 TURQUOISE = (64,244,208)
 
+
+#Creating cell(box) object
 class Box:
 
     def __init__(self,row,col,width,total_rows):
@@ -34,23 +36,45 @@ class Box:
         self.width = width
         self.total_rows = total_rows
         self.color = WHITE
+        self.value = 0
 
+    #Set value of cell
+    def set_value(self,num):
+        self.value = num
+
+    def get_value(self):
+        return self.value
+
+    #Get cell position
     def get_pos(self):
         return self.row,self.col
 
+    #draw the cell
     def draw(self,win):
         pygame.draw.rect(win,self.color,(self.x, self.y, self.width, self.width))
 
+    #Color the cell when its clicked
     def make_clicked(self):
         self.color = TURQUOISE
 
+    #"Un-color" the cell when it was clicked again
     def make_clear(self):
         self.color = WHITE
 
+    #Check if the cell IS clicked
     def is_clicked(self):
         return self.color
 
+    # Draw the number on screen
+    def draw_number(self,win, text, pos):
+        largeText = pygame.font.Font('freesansbold.ttf', 72)
+        TextSurf, TextRect = text_objects(text, largeText)
+        x, y = pos
+        TextRect.center = (x, y)
+        win.blit(TextSurf, TextRect)
 
+
+#Create the grid
 def make_grid(rows,width):
     grid = []
     gap = width // rows
@@ -63,6 +87,7 @@ def make_grid(rows,width):
     return grid
 
 
+#Draw the grid
 def draw_grid(win, rows, width):
     gap = width // rows
     for i in range(rows):
@@ -76,6 +101,8 @@ def draw_grid(win, rows, width):
             else:
                 pygame.draw.line(win, GREY, (j * gap, 0), (j * gap, width))
 
+
+#Draw everything
 def draw(win, grid, rows, width):
     win.fill(WHITE)
 
@@ -83,10 +110,17 @@ def draw(win, grid, rows, width):
         for box in row:
             box.draw(win)
 
+    draw_values(win, grid)
     draw_grid(win, rows, width)
     pygame.display.update()
 
+def draw_values(win, grid):
+        for row in grid:
+            for box in row:
+                if (box.get_value() in (1,2,3,4,5,6,7,8,9,)):
+                    box.draw_number(win, str(box.get_value()), get_cell([box.x,box.y]))
 
+#Get clicked position
 def get_clicked_pos(pos, rows, width):
     gap = width // rows
     y, x = pos
@@ -96,33 +130,14 @@ def get_clicked_pos(pos, rows, width):
 
     return row, col
 
-def get_inserted_number(key):
-    print(key)
-    event_key = key
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            run = False
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.event_key:
-                print("hi")
-
-def draw_number(win,text,pos):
-    largeText = pygame.font.Font('freesansbold.ttf',72)
-    TextSurf, TextRect = text_objects(text, largeText)
-    x,y = pos
-    TextRect.center = (x,y)
-    win.blit(TextSurf, TextRect)
-    pygame.display.update()
-
+#Get cell position
 def get_cell(pos):
     x,y = pos
-    if (x > 0 and x < 100 and y > 0 and y < 100):
-        row = 50
-        col = 50
-    elif (x>100 and x < 200 and y > 0 and y < 100):
-        row = 150
-        col = 50
 
+    row = x - x % 100
+    col = y - y % 100
+    row += 50
+    col += 50
 
     return row,col
 
@@ -159,9 +174,25 @@ def main(win,width):
                     tile_clicked = False
 
             if event.type == pygame.KEYDOWN and tile_clicked:
-                draw_number(win, event.unicode, get_cell(pos))
+                clicked.set_value(int(event.unicode))
 
 
     pygame.quit()
 
 main(WIN,WIDTH)
+
+
+
+
+#Junk that was tested
+
+"""#Receieve pressed number
+def get_inserted_number(key):
+    print(key)
+    event_key = key
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.event_key:
+                print("hi")"""
